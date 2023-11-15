@@ -1,4 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MyOwnSite.Master" AutoEventWireup="true" CodeBehind="history.aspx.cs" Inherits="LookAndFeelDemo.history" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="pageContent" runat="server">
-    <b>Transaction history page</b>
+    <asp:TextBox ID="txtcustid" runat="server"></asp:TextBox>
+    <asp:Button ID="Button1" runat="server" OnClick="Button1_Click" Text="Show" />
+    <asp:GridView ID="GridView1" runat="server"></asp:GridView>
 </asp:Content>
