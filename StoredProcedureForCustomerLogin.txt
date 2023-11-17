@@ -1,0 +1,31 @@
+USE [SomeBank]
+GO
+/****** Object:  StoredProcedure [dbo].[ValidateUser]    Script Date: 17-11-2023 15:39:22 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[ValidateUser]
+@p_username VARCHAR (20), @p_pwd VARCHAR (20), @p_userStatus VARCHAR (7) OUTPUT, @p_custname VARCHAR (50) OUTPUT
+AS
+DECLARE @v_username AS VARCHAR (20), @v_password AS VARCHAR (20);
+BEGIN
+    SELECT @v_username = Custid,
+           @v_password = password
+    FROM   CustLogin
+    WHERE  Custid = @p_username;
+    IF ((@v_password = @p_pwd)
+        AND (@v_username = @p_username))
+        BEGIN
+            SET @p_userStatus = 'Valid';
+            SELECT @p_custname = custname
+            FROM   Customer
+            WHERE  custid = @v_username;
+        END
+    ELSE
+        BEGIN
+            SET @p_userStatus = 'Invalid';
+        END
+    RETURN 0;
+END
+
