@@ -1,0 +1,181 @@
+Master Pages
+, Themes
+,Skins
+** used for look and feel of the application/website 
+
+
+Master Page------>Page which will be the master(Parent) of each page in the app.
+
+Themes------Personlized effect to the screens/forms of the app.
+
+Skins-------effect to the controls of the app
+*****************************************************
+
+
+App_Data-----Application Data-----> store database for your app
+App_Start----Application Start----> initialization of the app defined
+Content----Css and Bootstrap----> everything related to css
+Scripts----javascript,jquery,etc
+bundle.config---> configuration bundles-----> Bundle and minification
+
+Global.asax----->Global settings for app which will be applied to the whole project.
+  When any user comes to the website/webapp a session is created, sessionid which identifies each user differently.
+Session Variable.
+Related searches are shown.
+  SessionEnd----->
+Application_end---->
+
+ViewSwitcher--- is a user control----> user control (.ascx)
+Master Page (.master)
+
+
+ContentPAges--- About,Contact(they put their customised content in it)
+The master gives the ContentPlaceHolder to the content pages for putting the content.
+---------------------------------------
+BankDB
+Customer:Custid, Custname, City
+	   1       anita    ,mumbai
+	   2       vinita    pune
+           3       sunita    bangalore
+
+CustLogin:Custid--fk,password
+	    1          anitamumbai
+            2          vinitapune	
+	    3          sunitabangalore
+	
+custAccount: custid    amt
+	       1       90000
+	       2       200000
+               3       300000
+			
+
+CustTransactions: Tranid pk,Custid-fk, tranDate,Amt 
+		1              1         15/11/2023  10000
+		2              1         15/11/2023  5000
+                3              2         15/11/2023  8000
+
+-------------------------------------------------------------
+create database SomeBank
+go
+create table Customer(Custid int primary key identity(1,1),
+Custname varchar(50), 
+City varchar(50))
+go
+create table CustLogin(Custid int foreign key references Customer(Custid),password varchar(50))
+go
+create table custAccount(Custid int foreign key references Customer(Custid),
+amt numeric(12))
+go
+create table CustTransactions( Tranid int identity(1,1) primary key,
+Custid int foreign key references Customer(Custid),
+tranDate date,Amt numeric(12))
+go
+------------------------------------------------------------
+ CREATE FUNCTION fn_ShowTransactionHistory
+(	
+	-- Add the parameters for the function here
+	@p_custid int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	SELECT  * from CustTransactions where Custid=@p_custid
+)
+GO    
+--------------------------------------------------
+//Trigger for transaction History
+create TRIGGER [dbo].[trig_UpdateBalance]
+    ON [dbo].[CustTransactions]
+    AFTER INSERT
+    AS BEGIN
+           DECLARE @v_amt AS NUMERIC (12), @v_custid AS INT;
+           SET NOCOUNT ON;
+           SELECT @v_amt = inserted.Amt,
+                  @v_custid = inserted.Custid
+           FROM   inserted;
+           UPDATE custAccount
+           SET    amt = amt - @v_amt
+           WHERE  Custid = @v_custid;
+       END
+--------------------------------------
+//function for scalar
+
+create FUNCTION [dbo].[fn_ShowBalance]
+(@p_custid INT)
+RETURNS NUMERIC (12)
+AS
+BEGIN
+    DECLARE @bal AS NUMERIC (12);
+    SELECT @bal = amt
+    FROM   custAccount
+    WHERE  Custid = @p_custid;
+    RETURN @bal;
+END
+
+----------------------------------------------------
+create table TransferMoney
+(tranid int primary key identity(1,1),
+tranDate date,
+custidFrom int foreign key references Customer(custid),
+custidTo int foreign key references Customer(custid),
+Amt numeric)
+---------------------------------------
+trig--- transfer money----insert
+
+create TRIGGER [dbo].[trig_UpdateBalanceAfterTransfer]
+    ON [dbo].[TransferMoney]
+    AFTER INSERT
+    AS BEGIN
+           DECLARE @v_amt AS NUMERIC (12),
+		   @v_custidto AS INT,
+		   @v_custidfrom as int;
+           SET NOCOUNT ON;
+           SELECT @v_amt = inserted.Amt,
+                  @v_custidto = inserted.custidTo, @v_custidfrom=inserted.custidFrom
+           FROM   inserted;
+           UPDATE custAccount
+           SET    amt = amt + @v_amt
+           WHERE  Custid = @v_custidTo;
+
+           UPDATE custAccount
+           SET    amt = amt - @v_amt
+           WHERE  Custid = @v_custidFrom;
+
+
+       END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
