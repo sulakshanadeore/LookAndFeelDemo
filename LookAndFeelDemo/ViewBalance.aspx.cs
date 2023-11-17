@@ -13,7 +13,8 @@ namespace LookAndFeelDemo
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            Label2.Text = Session["username"].ToString();
+            TextBox1.Text = Session["custid"].ToString();
         }
 
         protected void Button1_Click(object sender, EventArgs e)

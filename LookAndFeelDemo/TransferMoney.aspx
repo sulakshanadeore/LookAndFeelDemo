@@ -9,6 +9,6 @@
 Amount:
 <asp:TextBox ID="txtamount" runat="server"></asp:TextBox>
 &nbsp;
-<asp:Button ID="btntransfer" runat="server" Text="Transfer" />
+<asp:Button ID="btntransfer" runat="server" Text="Transfer" OnClick="btntransfer_Click" />
 <br />
 </asp:Content>
